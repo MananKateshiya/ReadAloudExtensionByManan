@@ -20,7 +20,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: async (text, settings) => {
-          // Ensure voices are fully loaded
           const loadVoices = () => {
             return new Promise((resolve) => {
               const voices = speechSynthesis.getVoices();
@@ -37,7 +36,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
           const selectedVoice = googleVoices.find((v) => v.name === settings.voice) || googleVoices[0];
 
           const utteranceQueue = [];
-          const chunkSize = 200; // Split text into 200-character chunks for better compatibility Max is around 216 characters based on tests
+          const chunkSize = 200;
           for (let i = 0; i < text.length; i += chunkSize) {
             const chunk = text.slice(i, i + chunkSize);
             const utterance = new SpeechSynthesisUtterance(chunk);
@@ -47,66 +46,36 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             utteranceQueue.push(utterance);
           }
 
+          // Add CSS link
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = chrome.runtime.getURL("tts-style.css");
+          document.head.appendChild(link);
+
           // Create control bar UI
           const controlBar = document.createElement("div");
           controlBar.id = "tts-control-bar";
-          controlBar.style.position = "fixed";
-          controlBar.style.top = "10px";
-          controlBar.style.left = "50%";
-          controlBar.style.transform = "translateX(-50%)";
-          controlBar.style.padding = "10px";
-          controlBar.style.backgroundColor = "orange";
-          controlBar.style.borderRadius = "5px";
-          controlBar.style.zIndex = "10000";
-          controlBar.style.display = "flex";
-          controlBar.style.flexDirection = "row";
-          controlBar.style.alignItems = "center";
-          controlBar.style.width = "25%";
-          controlBar.style.justifyContent = "space-between";
 
-          const pauseButton = document.createElement("button");
-          pauseButton.textContent = "Pause";
-          pauseButton.style.marginRight = "15px";
-          pauseButton.style.marginLeft = "15px";
-          pauseButton.style.padding = '8px';
-
-
-          const stopButton = document.createElement("button");
-          stopButton.textContent = "Stop";
-          stopButton.style.width = "55px";
-          stopButton.style.marginRight = "15px";
-          stopButton.style.marginLeft = "15px";
-          stopButton.style.padding = "8px";
-
-          const progressContainer = document.createElement("div");
-          progressContainer.style.flex = "1";
-          progressContainer.style.marginLeft = "10px";
-
-          const progressBar = document.createElement("progress");
-          progressBar.max = 100;
-          progressBar.value = 0;
-          progressBar.style.width = "100%";
-          progressBar.style.height = "10px";
-          progressBar.style.backgroundColor = "white";
-
-          const timeRemaining = document.createElement("span");
-          timeRemaining.style.marginLeft = "10px";
-          timeRemaining.textContent = "0:00";
-
-          progressContainer.appendChild(progressBar);
-          progressContainer.appendChild(timeRemaining);
-
-          controlBar.appendChild(pauseButton);
-          controlBar.appendChild(progressContainer);
-          controlBar.appendChild(stopButton);
+          controlBar.innerHTML = `
+            <button id="pause-btn">Pause</button>
+            <div style="flex: 1; margin-left: 10px;">
+              <progress id="progress-bar" max="100" value="0"></progress>
+              <span id="time-remaining">0:00</span>
+            </div>
+            <button id="stop-btn">Stop</button>
+          `;
           document.body.appendChild(controlBar);
+
+          const pauseButton = document.getElementById("pause-btn");
+          const stopButton = document.getElementById("stop-btn");
+          const progressBar = document.getElementById("progress-bar");
+          const timeRemaining = document.getElementById("time-remaining");
 
           let elapsedTime = 0;
           const estimatedDuration = (text.length * 0.075) / settings.speed;
 
-          // Update progress
           const updateProgress = () => {
-            elapsedTime += 0.1; // Increment by 0.1 seconds
+            elapsedTime += 0.1;
             const percentage = Math.min((elapsedTime / estimatedDuration) * 100, 100);
             progressBar.value = percentage;
 
@@ -119,19 +88,16 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
           let isPaused = false;
           let currentUtterance = 0;
 
-          // Start speech synthesis
           const speakNextChunk = () => {
             if (currentUtterance < utteranceQueue.length) {
               const utterance = utteranceQueue[currentUtterance++];
               utterance.onend = speakNextChunk;
               speechSynthesis.speak(utterance);
             } else {
-              // Finished speaking all chunks
               document.body.removeChild(controlBar);
             }
           };
 
-          // Pause/Unpause
           pauseButton.addEventListener("click", () => {
             if (isPaused) {
               speechSynthesis.resume();
@@ -144,20 +110,17 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             }
           });
 
-          // Stop
           stopButton.addEventListener("click", () => {
             speechSynthesis.cancel();
             document.body.removeChild(controlBar);
           });
 
-          // Fallback timer
           setInterval(() => {
             if (!isPaused) {
               updateProgress();
             }
           }, 100);
 
-          // Start speaking
           speakNextChunk();
         },
         args: [info.selectionText, settings],
