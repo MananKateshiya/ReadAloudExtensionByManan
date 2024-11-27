@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const populateVoices = () => {
     const voices = speechSynthesis.getVoices();
   
-    // Show all voices, Browser and System
     voiceSelect.innerHTML = "";
   
     if (voices.length === 0) {
