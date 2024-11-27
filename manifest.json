@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "TTS Context Menu V2",
+  "version": "2.0",
+  "description": "Convert selected text to speech with customizable options.",
+  "permissions": ["contextMenus", "storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png"
+    }
+  },
+  "icons": {
+    "16": "icon.png"
+  }
+}
