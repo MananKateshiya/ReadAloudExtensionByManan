@@ -1,7 +1,7 @@
 const defaultSettings = {
   voice: null,
   speed: 1,
-  volume: 1,
+  volume: 1
 };
 
 chrome.runtime.onInstalled.addListener(() => {
