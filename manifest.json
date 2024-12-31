@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Read Aloud 2.0",
   "version": "2.0",
-  "description": "Convert selected text to speech with customizable options.",
+  "description": "Read aloud selected text from any website without any limitation!",
   "permissions": ["contextMenus", "storage", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {
