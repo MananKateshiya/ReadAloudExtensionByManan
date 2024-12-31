@@ -6,16 +6,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const volumeValue = document.getElementById("volume-value");
   const saveButton = document.getElementById("save");
 
+
+
   const populateVoices = () => {
     const voices = speechSynthesis.getVoices();
-  
+
     voiceSelect.innerHTML = "";
-  
+
     if (voices.length === 0) {
       voiceSelect.innerHTML = `<option disabled>No voices available</option>`;
       return;
     }
-  
+
     voices.forEach((voice) => {
       const option = document.createElement("option");
       option.value = voice.name;
@@ -23,18 +25,18 @@ document.addEventListener("DOMContentLoaded", () => {
       voiceSelect.appendChild(option);
     });
   };
-  
-  // Reload voices when available
+
+
   speechSynthesis.onvoiceschanged = populateVoices;
 
-  // Trigger initial population
+
   if (speechSynthesis.getVoices().length > 0) {
     populateVoices();
   } else {
     speechSynthesis.onvoiceschanged = populateVoices;
   }
 
-  // Load saved settings
+
   chrome.storage.sync.get("settings", ({ settings }) => {
     if (settings) {
       voiceSelect.value = settings.voice || "";
@@ -45,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Real-time value updates
+
   speedSlider.addEventListener("input", () => {
     speedValue.textContent = parseFloat(speedSlider.value).toFixed(1);
   });
@@ -53,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     volumeValue.textContent = parseFloat(volumeSlider.value).toFixed(1);
   });
 
-  // Save settings
+
   saveButton.addEventListener("click", () => {
     const settings = {
       voice: voiceSelect.value,
