@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const speedValue = document.getElementById("speed-value");
   const volumeSlider = document.getElementById("volume");
   const volumeValue = document.getElementById("volume-value");
+  const pitchSlider = document.getElementById("pitch");
+  const pitchValue = document.getElementById("pitch-value");
   const saveButton = document.getElementById("save");
 
 
@@ -39,11 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   chrome.storage.sync.get("settings", ({ settings }) => {
     if (settings) {
-      voiceSelect.value = settings.voice || "";
+      voiceSelect.value = settings.voice;
       speedSlider.value = settings.speed || 1;
       speedValue.textContent = settings.speed.toFixed(1) || "1.0";
       volumeSlider.value = settings.volume || 1;
       volumeValue.textContent = settings.volume.toFixed(1) || "1.0";
+      pitchSlider.value =  settings.pitch || 1;
+      pitchValue.textContent = settings.pitch.toFixed(1) || "1.0";
     }
   });
 
@@ -54,13 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
   volumeSlider.addEventListener("input", () => {
     volumeValue.textContent = parseFloat(volumeSlider.value).toFixed(1);
   });
-
+  pitchSlider.addEventListener("input", ()=>{
+    pitchValue.textContent = parseFloat(pitchSlider.value).toFixed(1);
+  })
 
   saveButton.addEventListener("click", () => {
     const settings = {
       voice: voiceSelect.value,
       speed: parseFloat(speedSlider.value),
       volume: parseFloat(volumeSlider.value),
+      pitch: parseFloat(pitchSlider.value)
     };
 
     chrome.storage.sync.set({ settings }, () => {

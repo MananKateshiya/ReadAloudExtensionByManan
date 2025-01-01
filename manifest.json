@@ -3,8 +3,16 @@
   "name": "Read Aloud 2.0",
   "version": "2.0",
   "description": "Read aloud selected text from any website without any limitation!",
-  "permissions": ["contextMenus", "storage", "scripting"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "scripting",
+    "tts",
+    "ttsEngine"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -24,8 +32,12 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["tts-style.css"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "tts-style.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

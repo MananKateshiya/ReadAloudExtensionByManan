@@ -21,8 +21,21 @@ function injectControlPlayer(text, settings) {
             align-items: center;
             justify-content: space-between;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          animation: box-opacity 0.7s linear 1 forwards
         }
-
+       #tts-control-bar:hover{
+          filter: opacity(100%);
+          animation: none;
+        }
+        @keyframes box-opacity{
+          from {
+          filter: opacity(100%)
+          }
+          to{
+          filter: opacity(50%)
+          }
+        }
+        
         #tts-control-bar button {
             background-color: white;
             border: none;
@@ -32,9 +45,9 @@ function injectControlPlayer(text, settings) {
             font-weight: bold;
             color: #ff9800;
             width: 70px;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
         }
-
+      
         #tts-control-bar button:hover {
             background-color: #f5f5f5;
         }
@@ -59,9 +72,9 @@ function injectControlPlayer(text, settings) {
         .circle-progress {
             stroke: white;
             stroke-dasharray: 188;
-            /* Circumference of the circle (2 * π * r with r=30) */
+           
             stroke-dashoffset: 188;
-            /* Start with 0 progress */
+           
             transition: stroke-dashoffset 0.3s ease;
         }
 
@@ -107,7 +120,7 @@ function injectControlPlayer(text, settings) {
 
     const progressCircle = document.querySelector(".circle-progress");
     if (progressCircle) {
-      const circumference = 188; // Circumference of the circle
+      const circumference = 188; 
       const offset = circumference - (percentage / 100) * circumference;
       progressCircle.style.strokeDashoffset = offset;
     }
