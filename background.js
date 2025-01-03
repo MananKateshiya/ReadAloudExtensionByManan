@@ -40,8 +40,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             };
 
             const voices = await loadVoices();
-            const googleVoices = voices.filter((voice) => voice.name.includes("Google"));
-            
+            // const googleVoices = voices.filter((voice) => voice.name.includes("Google"));
+
             const selectedVoice = voices.find((v) => v.name === settings.voice) || voices[0];
 
             const utteranceQueue = [];
