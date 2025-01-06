@@ -120,7 +120,7 @@ function injectControlPlayer(text, settings) {
 
     const progressCircle = document.querySelector(".circle-progress");
     if (progressCircle) {
-      const circumference = 188; 
+      const circumference = 188;
       const offset = circumference - (percentage / 100) * circumference;
       progressCircle.style.strokeDashoffset = offset;
     }
