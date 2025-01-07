@@ -1,0 +1,101 @@
+<html lang="en">
+
+<head>
+    <style>
+        .highlight {
+            background-color: yellow;
+            color: black;
+            transition: background-color 0.3s ease;
+
+        }
+    </style>
+</head>
+
+<body>
+    <p id="text-container">In this world of artificial intelligence (AI), every few months brings groundbreaking
+        developments. Over the last two years, one of the most exciting and impactful advancements has been the rise of
+        Vertical AI Agents — specialized AI systems designed to replace entire teams and streamline enterprise
+        functions. These agents are
+        not just incremental improvements in automation; they represent a fundamental shift in how companies operate,
+        grow, and scale.</p>
+
+    <button id="btn">click</button>
+    <script>
+
+        // const regx = /[^a-zA-Z0-9 ]+/g;
+        const WPM = 100;
+        const msPerWord = 60000 / WPM;
+        const textContainer = document.getElementById("text-container");
+
+        const originalText = textContainer.textContent;
+
+        const words = originalText.split(/\s+/);
+        textContainer.innerHTML = words
+            .map((word) => `<span>${word}</span>`)
+            .join(" ");
+
+
+        const wordSpans = textContainer.querySelectorAll("span");
+
+
+        const utterance = new SpeechSynthesisUtterance(textContainer.textContent.replaceAll("—", "......dash"));
+        utterance.rate = WPM / 100;
+
+
+        let currentWordIndex = 0;
+        utterance.onboundary = event => {
+            if (event.name === "word") {
+
+                if (currentWordIndex > 0) {
+                    wordSpans[currentWordIndex - 1].classList.remove("highlight");
+                }
+
+
+                if (currentWordIndex < wordSpans.length) {
+                    wordSpans[currentWordIndex].classList.add("highlight");
+                    currentWordIndex++;
+                }
+            }
+        };
+
+
+        function removeEmptySpans() {
+            const spans = document.querySelectorAll('#text-container span');
+            spans.forEach(span => {
+                if (!span.textContent.trim()) {
+                    span.remove();
+                }
+            });
+        }
+
+
+        utterance.onend = () => {
+
+            if (currentWordIndex > 0) {
+                wordSpans[currentWordIndex - 1].classList.remove("highlight");
+            }
+            textContainer.textContent = originalText;
+            removeEmptySpans();
+            currentWordIndex = 0;
+        };
+
+        document.getElementById('btn').addEventListener('click', function () {
+
+            speechSynthesis.speak(utterance);
+
+        });
+
+    </script>
+</body>
+
+</html>
+
+
+<html lang="en">
+<body>
+    <h3>Heading</h3>
+    <p>hello world lorem ipsum</p> <br>
+    <pre>This is some text</pre>
+
+</body>
+</html>
