@@ -1,5 +1,5 @@
 function injectControlPlayer(text, settings) {
-
+  console.log("injectControlPlayer called");
   const style = document.createElement('style');
   style.textContent = `
   #tts-control-bar {
@@ -160,33 +160,46 @@ function injectControlPlayer(text, settings) {
     if (injectedStyle) {
       injectedStyle.remove();
     }
-  };
-
-  document.getElementById("tts-control-pause-btn").addEventListener("click", () => {
-    if (isPaused) {
-      speechSynthesis.resume();
-      document.getElementById("tts-control-pause-btn").textContent = "Pause";
-      isPaused = false;
-    } else {
-      speechSynthesis.pause();
-      document.getElementById("tts-control-pause-btn").textContent = "Resume";
-      isPaused = true;
+    if (window.ttsOriginalElement && window.ttsModifiedElement) {
+      const parent = window.ttsModifiedElement.parentNode;
+      if (parent) {
+        parent.replaceChild(window.ttsOriginalElement, window.ttsModifiedElement);
+      }
+      delete window.ttsOriginalElement;
+      delete window.ttsModifiedElement;
     }
-  });
 
-  document.getElementById("tts-control-stop-btn").addEventListener("click", () => {
     speechSynthesis.cancel();
-    cleanup();
-  });
+  
 
-  progressInterval = setInterval(() => {
-    if (!isPaused) {
-      updateProgress();
-    }
-  }, 100);
 
-  return {
-    startSpeaking: (utteranceQueue) => speakNextChunk(utteranceQueue),
-    cleanup: cleanup
-  };
+};
+
+document.getElementById("tts-control-pause-btn").addEventListener("click", () => {
+  if (isPaused) {
+    speechSynthesis.resume();
+    document.getElementById("tts-control-pause-btn").textContent = "Pause";
+    isPaused = false;
+  } else {
+    speechSynthesis.pause();
+    document.getElementById("tts-control-pause-btn").textContent = "Resume";
+    isPaused = true;
+  }
+});
+
+document.getElementById("tts-control-stop-btn").addEventListener("click", () => {
+  speechSynthesis.cancel();
+  cleanup();
+});
+
+progressInterval = setInterval(() => {
+  if (!isPaused) {
+    updateProgress();
+  }
+}, 100);
+
+return {
+  startSpeaking: (utteranceQueue) => speakNextChunk(utteranceQueue),
+  cleanup: cleanup
+};
 }

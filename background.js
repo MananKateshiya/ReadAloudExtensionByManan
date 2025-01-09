@@ -48,11 +48,20 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             function findSelectedNode() {
               const selection = window.getSelection();
               if (!selection.rangeCount) return null;
+              
               const range = selection.getRangeAt(0);
-              const container = range.commonAncestorContainer;
-              const selectedElement = container.nodeType === Node.TEXT_NODE ? container.parentNode : container;
-              const originalElement = selectedElement.cloneNode(true);
-              return { range, selectedElement, originalElement };
+              let currentNode = range.startContainer;
+              
+              // Traverse up until we find the closest block-level element
+              while (currentNode && currentNode.nodeType !== Node.ELEMENT_NODE) {
+                currentNode = currentNode.parentNode;
+              }
+            
+              // Store references globally for cleanup
+              window.ttsOriginalElement = currentNode.cloneNode(true);
+              window.ttsModifiedElement = currentNode;
+            
+              return { range, selectedElement: currentNode };
             }
 
             const selectionInfo = findSelectedNode();
@@ -130,15 +139,15 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 if (originalOnEnd) originalOnEnd();
 
                 // Remove highlight from the last word
-                if (currentWordIndex > 0) {
+                if (currentWordIndex > 0 && wordSpans[currentWordIndex - 1]) {
                   wordSpans[currentWordIndex - 1].classList.remove("tts-highlight");
                 }
 
-                // After TTS finishes, replace all span tags with the original selected text
-                const selectedText = selectionInfo.selectedElement.textContent;
+                // Replace modified content with original content
                 const parentElement = selectionInfo.selectedElement.parentNode;
-                const textNode = document.createTextNode(selectedText);
-                parentElement.replaceChild(textNode, selectionInfo.selectedElement);
+                if (parentElement) {
+                  parentElement.replaceChild(selectionInfo.originalContent, selectionInfo.selectedElement);
+                }
 
                 speechSynthesis.cancel();
               };
