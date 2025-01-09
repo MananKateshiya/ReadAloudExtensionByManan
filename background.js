@@ -52,12 +52,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               const range = selection.getRangeAt(0);
               let currentNode = range.startContainer;
               
-              // Traverse up until we find the closest block-level element
+              
               while (currentNode && currentNode.nodeType !== Node.ELEMENT_NODE) {
                 currentNode = currentNode.parentNode;
               }
             
-              // Store references globally for cleanup
+              
               window.ttsOriginalElement = currentNode.cloneNode(true);
               window.ttsModifiedElement = currentNode;
             
@@ -138,12 +138,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               finalUtterance.onend = () => {
                 if (originalOnEnd) originalOnEnd();
 
-                // Remove highlight from the last word
+                
                 if (currentWordIndex > 0 && wordSpans[currentWordIndex - 1]) {
                   wordSpans[currentWordIndex - 1].classList.remove("tts-highlight");
                 }
 
-                // Replace modified content with original content
+                
                 const parentElement = selectionInfo.selectedElement.parentNode;
                 if (parentElement) {
                   parentElement.replaceChild(selectionInfo.originalContent, selectionInfo.selectedElement);
