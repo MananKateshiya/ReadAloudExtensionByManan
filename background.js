@@ -48,19 +48,19 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             function findSelectedNode() {
               const selection = window.getSelection();
               if (!selection.rangeCount) return null;
-              
+
               const range = selection.getRangeAt(0);
               let currentNode = range.startContainer;
-              
-              
+
+
               while (currentNode && currentNode.nodeType !== Node.ELEMENT_NODE) {
                 currentNode = currentNode.parentNode;
               }
-            
-              
+
+
               window.ttsOriginalElement = currentNode.cloneNode(true);
               window.ttsModifiedElement = currentNode;
-            
+
               return { range, selectedElement: currentNode };
             }
 
@@ -115,17 +115,46 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               utterance.pitch = settings.pitch;
 
               utterance.onboundary = (event) => {
-                if (event.name === "word") {
-                  if (currentWordIndex > 0) {
-                    wordSpans[currentWordIndex - 1].classList.remove("tts-highlight");
-                  }
-                  if (currentWordIndex < wordSpans.length) {
-                    wordSpans[currentWordIndex].classList.add("tts-highlight");
+
+                if (!utterance.voice || !utterance.voice.voiceURI.includes('Google')) {
+                  if (event.name === "word") {
+                    wordSpans[currentWordIndex - 1]?.classList.remove("tts-highlight");
+                    wordSpans[currentWordIndex]?.classList.add("tts-highlight");
                     currentWordIndex++;
                   }
                 }
+
+                // if (event.name === "word") {
+                //   if (currentWordIndex > 0) {
+                //     wordSpans[currentWordIndex - 1].classList.remove("tts-highlight");
+                //   }
+                //   if (currentWordIndex < wordSpans.length) {
+                //     wordSpans[currentWordIndex].classList.add("tts-highlight");
+                //     currentWordIndex++;
+                //   }
+                // }
+              };
+              utterance.onstart = () => {
+                if (!utterance.voice || utterance.voice.voiceURI.includes('Google')) {
+                  const totalDuration = (utterance.text.length / settings.speed) * 60;
+                  const words = utterance.text.trim().split(/\s+/);
+                  const avgWordDuration = totalDuration / words.length;
+
+                  const startDelay = 500; // Initial delay in ms
+
+                  words.forEach((word, index) => {
+                    const wordTime = (word.length / utterance.text.length) * totalDuration;
+                    setTimeout(() => {
+                      wordSpans[currentWordIndex - 1]?.classList.remove("tts-highlight");
+                      wordSpans[currentWordIndex]?.classList.add("tts-highlight");
+                      currentWordIndex++;
+                    }, startDelay + (index * wordTime));
+                  });
+                }
               };
 
+
+              
               if (isLastChunk) {
                 finalUtterance = utterance;
               }
@@ -138,12 +167,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               finalUtterance.onend = () => {
                 if (originalOnEnd) originalOnEnd();
 
-                
+
                 if (currentWordIndex > 0 && wordSpans[currentWordIndex - 1]) {
                   wordSpans[currentWordIndex - 1].classList.remove("tts-highlight");
                 }
 
-                
+
                 const parentElement = selectionInfo.selectedElement.parentNode;
                 if (parentElement) {
                   parentElement.replaceChild(selectionInfo.originalContent, selectionInfo.selectedElement);

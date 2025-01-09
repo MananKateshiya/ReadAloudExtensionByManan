@@ -1,5 +1,5 @@
 function injectControlPlayer(text, settings) {
-  console.log("injectControlPlayer called");
+
   const style = document.createElement('style');
   style.textContent = `
   #tts-control-bar {
