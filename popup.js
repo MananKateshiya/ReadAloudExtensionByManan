@@ -8,70 +8,81 @@ document.addEventListener("DOMContentLoaded", () => {
   const pitchValue = document.getElementById("pitch-value");
   const saveButton = document.getElementById("save");
 
-
-
   const populateVoices = () => {
-    const voices = speechSynthesis.getVoices();
+      const voices = window.speechSynthesis.getVoices();
+      voiceSelect.innerHTML = "<optgroup label='System Voices'></optgroup><optgroup label='Google Voices (Beta)'></optgroup>";
+      
+      const systemGroup = voiceSelect.querySelector("optgroup[label='System Voices']");
+      const googleGroup = voiceSelect.querySelector("optgroup[label='Google Voices (Beta)']");
+      
+      if (!voices.length) {
+          voiceSelect.innerHTML = `<option disabled>Not Supported by Browser</option>`;
+          return;
+      }
 
-    voiceSelect.innerHTML = "";
+      const googleVoices = voices.filter(voice => voice.voiceURI.includes('Google'));
+      if (!googleVoices.length) {
+          googleGroup.innerHTML = `<option disabled>Google Voices Not Supported by Browser</option>`;
+      }
 
-    if (voices.length === 0) {
-      voiceSelect.innerHTML = `<option disabled>No voices available</option>`;
-      return;
-    }
+      voices.forEach((voice) => {
+          const option = document.createElement("option");
+          option.value = voice.name;
+          option.textContent = `${voice.name} (${voice.lang})`;
+          
+          if (voice.voiceURI.includes('Google')) {
+              option.textContent += " - Highlighting not supported";
+              googleGroup.appendChild(option);
+          } else {
+              systemGroup.appendChild(option);
+          }
+      });
 
-    voices.forEach((voice) => {
-      const option = document.createElement("option");
-      option.value = voice.name;
-      option.textContent = `${voice.name} (${voice.lang})`;
-      voiceSelect.appendChild(option);
-    });
+      
+      chrome.storage.sync.get("settings", ({ settings }) => {
+          if (settings) {
+              voiceSelect.value = settings.voice || voices[0].name;
+              speedSlider.value = settings.speed || 1;
+              speedValue.textContent = (settings.speed || 1).toFixed(1);
+              volumeSlider.value = settings.volume || 1;
+              volumeValue.textContent = (settings.volume || 1).toFixed(1);
+              pitchSlider.value = settings.pitch || 1;
+              pitchValue.textContent = (settings.pitch || 1).toFixed(1);
+          }
+      });
   };
 
-
-  speechSynthesis.onvoiceschanged = populateVoices;
-
-
-  if (speechSynthesis.getVoices().length > 0) {
-    populateVoices();
-  } else {
-    speechSynthesis.onvoiceschanged = populateVoices;
+  
+  if (window.speechSynthesis.getVoices().length) {
+      populateVoices();
   }
+  window.speechSynthesis.onvoiceschanged = populateVoices;
 
-
-  chrome.storage.sync.get("settings", ({ settings }) => {
-    if (settings) {
-      voiceSelect.value = settings.voice;
-      speedSlider.value = settings.speed || 1;
-      speedValue.textContent = settings.speed.toFixed(1) || "1.0";
-      volumeSlider.value = settings.volume || 1;
-      volumeValue.textContent = settings.volume.toFixed(1) || "1.0";
-      pitchSlider.value =  settings.pitch || 1;
-      pitchValue.textContent = settings.pitch.toFixed(1) || "1.0";
-    }
+  
+  [
+      [speedSlider, speedValue],
+      [volumeSlider, volumeValue],
+      [pitchSlider, pitchValue]
+  ].forEach(([slider, value]) => {
+      slider.addEventListener("input", () => {
+          value.textContent = parseFloat(slider.value).toFixed(1);
+      });
   });
 
-
-  speedSlider.addEventListener("input", () => {
-    speedValue.textContent = parseFloat(speedSlider.value).toFixed(1);
-  });
-  volumeSlider.addEventListener("input", () => {
-    volumeValue.textContent = parseFloat(volumeSlider.value).toFixed(1);
-  });
-  pitchSlider.addEventListener("input", ()=>{
-    pitchValue.textContent = parseFloat(pitchSlider.value).toFixed(1);
-  })
-
+  
   saveButton.addEventListener("click", () => {
-    const settings = {
-      voice: voiceSelect.value,
-      speed: parseFloat(speedSlider.value),
-      volume: parseFloat(volumeSlider.value),
-      pitch: parseFloat(pitchSlider.value)
-    };
+      const settings = {
+          voice: voiceSelect.value,
+          speed: parseFloat(speedSlider.value),
+          volume: parseFloat(volumeSlider.value),
+          pitch: parseFloat(pitchSlider.value)
+      };
 
-    chrome.storage.sync.set({ settings }, () => {
-      alert("Settings saved!");
-    });
+      chrome.storage.sync.set({ settings }, () => {
+          const toast = document.getElementById('toast');
+          toast.textContent = "Your preferences have been saved";
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 3000);
+      });
   });
 });

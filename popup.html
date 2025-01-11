@@ -7,9 +7,12 @@
   <title>TTS Settings</title>
   <style>
     body {
+      width: 300px;
+      max-height: 450px;
+      padding: 15px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       font-weight: bold;
-      padding: 10px;
       min-width: 250px;
     }
 
@@ -20,12 +23,15 @@
       justify-content: space-evenly;
       accent-color: #ea8616;
       border: 0px;
-      border-radius: 50px;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     #banner {
       width: 100%;
-      height: 75px;
+      height: 50px;
       background-image: url('./icons/the-icon.webp');
       background-size: contain;
       background-repeat: no-repeat;
@@ -36,14 +42,16 @@
     #credit-div {
       display: flex;
       padding: 10px;
-      font-size: 1rem;
+      margin: 10px;
+      font-size: 0.8rem;
       text-align: center;
     }
 
 
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 8px;
+      font-size: 0.9rem;
     }
 
 
@@ -84,6 +92,7 @@
     select,
     input[type="range"] {
       width: 100%;
+      margin: 5px 0;
     }
 
     input[type="range"] {
@@ -118,6 +127,9 @@
       outline: none;
       margin: 10px 0;
       font-size: 0.8rem;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
     }
 
     option {
@@ -127,14 +139,54 @@
       font-size: 1.2rem;
       accent-color: #333;
     }
+
+    optgroup {
+      font-weight: 600;
+    }
+
+    optgroup[label="Google Voices (Beta)"] option {
+      color: #0056b3;
+      font-style: italic;
+    }
+
+    .welcome-message {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      font-size: 0.9rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .error {
+      background: #f44336;
+    }
   </style>
 </head>
 
 <body>
+  <div id="toast" class="toast"></div>
   <div id="banner">
     <!-- <img src="icons/the-icon.webp" height="26px" width="26px" alt="icon" /> -->
   </div>
-
+  <div class="welcome-message">
+    Welcome! Customize your reading experience with the settings below.
+  </div>
   <h1> Read Aloud Settings</h1>
   <hr>
   <div id="main-div">
