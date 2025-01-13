@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Read Aloud 2.0",
-  "version": "2.0",
-  "description": "Read aloud selected text from any website without any limitation!",
+  "name": "Read Aloud V2",
+  "version": "1.0",
+  "description": "Read Aloud: The fastest way to convert selected text from any website into spoken words, No limitations!",
   "permissions": [
     "contextMenus",
     "storage",
@@ -19,16 +19,16 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png"
+      "16": "icons/blue/icon16.png",
+      "32": "icons/blue/icon32.png",
+      "48": "icons/blue/icon48.png"
     }
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/blue/icon16.png",
+    "32": "icons/blue/icon32.png",
+    "48": "icons/blue/icon48.png",
+    "128": "icons/blue/icon128.png"
   },
   "web_accessible_resources": [
     {
