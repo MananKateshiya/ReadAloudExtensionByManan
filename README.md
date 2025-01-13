@@ -3,7 +3,7 @@
 **Read Aloud V2** is a simple and fast Chrome extension that converts selected text from any webpage into spoken words. With just a click or a right-click, you can easily listen to any webpage content, making it perfect for users who prefer audio over text or have visual impairments.  
   
   
-![Read Aloud V2](images/feature.gif)
+![Read Aloud V2](images/feature-showcase.gif)
 
 
 ---
@@ -24,7 +24,7 @@ The media player shows the duration with a sleek, modern design. Easily control 
 
 ## Text Highlighting to Keep Up with TTS
 The extension highlights the text as it’s read aloud, ensuring you can follow along and never lose track of the speech.  
-![Text highlighting as TTS progresses](images/live-text-highlight.gif)
+![Text highlighting as TTS progresses](images/text-highlight.gif)
 
 ---
 
