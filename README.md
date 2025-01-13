@@ -98,3 +98,7 @@ For any inquiries or support, feel free to open an issue on GitHub, or contact m
 - **Google Chrome APIs**: For providing the built-in text-to-speech functionality and context menu features.
 
 ---
+
+If you enjoy using this extension and would like to support my work, consider buying me a coffee! Your support is greatly appreciated.  [Buy Me a Coffee ☕](https://buymeacoffee.com/manankateshiya)
+
+---
