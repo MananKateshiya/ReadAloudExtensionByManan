@@ -75,7 +75,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any inquiries or support, feel free to open an issue on GitHub, or contact me at conract@manankateshiya.
+For any inquiries or support, feel free to open an issue on GitHub, or contact me at [contact@manankateshiya.com](mailto:contact@manankateshiya.com).
 
 ---
 
