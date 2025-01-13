@@ -1,4 +1,4 @@
-# Read Aloud V2 - Browser Extension
+# Read Aloud V2 - Browser Extension by Manan Kateshiya
 
 **Read Aloud V2** is a simple and fast Chrome extension that converts selected text from any webpage into spoken words. With just a click or a right-click, you can easily listen to any webpage content, making it perfect for users who prefer audio over text or have visual impairments.
 
@@ -75,14 +75,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any inquiries or support, feel free to open an issue on GitHub, or contact me at [your-email@example.com].
+For any inquiries or support, feel free to open an issue on GitHub, or contact me at conract@manankateshiya.
 
 ---
 
 ## Acknowledgments
 
 - **Google Chrome APIs**: For providing the built-in text-to-speech functionality and context menu features.
-- **[Other Libraries/Tools Used]**: (If applicable, list any libraries or tools that your extension depends on).
 
 ---
 
