@@ -23,16 +23,32 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                     return window.speechSynthesis.getVoices();
                 }
             }).then((voices) => {
-                var selectedVoice = voices[0].result.find(v => v.name === settings.voice);
-                var isGoogleVoice = selectedVoice?.voiceURI.includes('Google');
+                const voiceResults = voices[0].result;
+                const selectedVoice = voiceResults.find(v => v.name === settings.voice);
+                const isGoogleVoice = selectedVoice?.voiceURI.includes('Google') ?? false;
 
-                if (!isGoogleVoice) {
+                
+                if (isGoogleVoice) {
                     chrome.scripting.insertCSS({
                         target: { tabId: tab.id },
-                        css: `.tts-highlight { background-color: yellow !important; color: black !important; transition: background-color 0.3s ease !important; }`
+                        css: `
+                            .tts-highlight { 
+                                background-color: transparent !important;
+                                color: inherit !important;
+                            }
+                            .tts-word {
+                                background-color: transparent !important;
+                                color: inherit !important;
+                            }
+                        `
+                    });
+                } else {
+                    
+                    chrome.scripting.insertCSS({
+                        target: { tabId: tab.id },
+                        css: `.tts-highlight { background-color: orange !important; color: black !important;}`
                     });
                 }
-                console.log("GOOGLE?", isGoogleVoice);
 
                 chrome.scripting.executeScript({
                     target: { tabId: tab.id },
@@ -40,8 +56,30 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 }).then(() => {
                     chrome.scripting.executeScript({
                         target: { tabId: tab.id },
-                        func: async (text, settings, isGoogleVoice) => {
-                            console.log("GOOGLE?", isGoogleVoice);
+                        func: async (text, settings) => {
+                            let selectedVoice = null;
+                            
+                            function initializeVoice() {
+                                const voices = speechSynthesis.getVoices();
+                                if (voices.length) {
+                                    selectedVoice = voices.find(v => v.name === settings.voice) || voices[0];
+                                    return selectedVoice;
+                                }
+                                return null;
+                            }
+
+                            selectedVoice = initializeVoice();
+                            if (!selectedVoice) {
+                                await new Promise(resolve => {
+                                    speechSynthesis.onvoiceschanged = () => {
+                                        selectedVoice = initializeVoice();
+                                        resolve();
+                                    };
+                                });
+                            }
+
+                            const isGoogleVoice = selectedVoice?.voiceURI.includes('Google') ?? false;
+
                             function cleanupExisting() {
                                 speechSynthesis.cancel();
                                 const existingSpans = document.querySelectorAll('.tts-word');
@@ -64,11 +102,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                                 const range = selection.getRangeAt(0);
                                 let currentNode = range.startContainer;
 
-
                                 while (currentNode && currentNode.nodeType !== Node.ELEMENT_NODE) {
                                     currentNode = currentNode.parentNode;
                                 }
-
 
                                 window.ttsOriginalElement = currentNode.cloneNode(true);
                                 window.ttsModifiedElement = currentNode;
@@ -88,14 +124,15 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                                     if (word) {
                                         const span = document.createElement('span');
                                         span.textContent = word;
-                                        span.className = 'tts-word';
+                                        
+                                        span.className = isGoogleVoice ? 'tts-word-no-highlight' : 'tts-word';
                                         fragment.appendChild(span);
                                         if (index < words.length - 1) fragment.appendChild(document.createTextNode(' '));
                                     }
                                 });
 
                                 selectionInfo.range.insertNode(fragment);
-                                return Array.from(document.querySelectorAll('.tts-word'));
+                                return Array.from(document.querySelectorAll(isGoogleVoice ? '.tts-word-no-highlight' : '.tts-word'));
                             }
 
                             const wordSpans = wrapWordsWithSpans(selectionInfo);
@@ -104,17 +141,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                             const utteranceQueue = [];
                             const chunkSize = 200;
                             let finalUtterance = null;
-
-                            const loadVoices = () => {
-                                return new Promise((resolve) => {
-                                    const voices = speechSynthesis.getVoices();
-                                    if (voices.length) resolve(voices);
-                                    else speechSynthesis.onvoiceschanged = () => resolve(speechSynthesis.getVoices());
-                                });
-                            };
-
-                            const voices = await loadVoices();
-                            const selectedVoice = voices.find(v => v.name === settings.voice) || voices[0];
 
                             for (let i = 0; i < text.length; i += chunkSize) {
                                 const chunk = text.slice(i, i + chunkSize);
@@ -126,37 +152,16 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                                 utterance.volume = settings.volume;
                                 utterance.pitch = settings.pitch;
 
-                                utterance.onboundary = (event) => {
-
-                                    if (!utterance.voice || !utterance.voice.voiceURI.includes('Google')) {
+                                
+                                if (!isGoogleVoice) {
+                                    utterance.onboundary = (event) => {
                                         if (event.name === "word") {
                                             wordSpans[currentWordIndex - 1]?.classList.remove("tts-highlight");
                                             wordSpans[currentWordIndex]?.classList.add("tts-highlight");
                                             currentWordIndex++;
                                         }
-                                    }
-
-                                };
-                                utterance.onstart = () => {
-                                    if (!utterance.voice || utterance.voice.voiceURI.includes('Google')) {
-                                        const totalDuration = (utterance.text.length / settings.speed) * 60;
-                                        const words = utterance.text.trim().split(/\s+/);
-                                        const avgWordDuration = totalDuration / words.length;
-
-                                        const startDelay = 500;
-
-                                        words.forEach((word, index) => {
-                                            const wordTime = (word.length / utterance.text.length) * totalDuration;
-                                            setTimeout(() => {
-                                                wordSpans[currentWordIndex - 1]?.classList.remove("tts-highlight");
-                                                wordSpans[currentWordIndex]?.classList.add("tts-highlight");
-                                                currentWordIndex++;
-                                            }, startDelay + (index * wordTime));
-                                        });
-                                    }
-                                };
-
-
+                                    };
+                                }
 
                                 if (isLastChunk) {
                                     finalUtterance = utterance;
@@ -169,27 +174,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                                 const originalOnEnd = finalUtterance.onend;
                                 finalUtterance.onend = () => {
                                     if (originalOnEnd) originalOnEnd();
-
-
-                                    if (currentWordIndex > 0 && wordSpans[currentWordIndex - 1]) {
-                                        wordSpans[currentWordIndex - 1].classList.remove("tts-highlight");
-                                    }
-
-
-                                    const parentElement = selectionInfo.selectedElement.parentNode;
-                                    if (parentElement) {
-                                        parentElement.replaceChild(selectionInfo.originalContent, selectionInfo.selectedElement);
-                                    }
-
-                                    speechSynthesis.cancel();
+                                    cleanupExisting();
                                 };
                             }
 
                             window.ttsControlPlayer = injectControlPlayer(text, settings);
                             window.ttsControlPlayer.startSpeaking(utteranceQueue);
-
                         },
-                        args: [info.selectionText, settings, isGoogleVoice],
+                        args: [info.selectionText, settings],
                     });
                 }).catch(error => console.error("Script execution error:", error));
             });

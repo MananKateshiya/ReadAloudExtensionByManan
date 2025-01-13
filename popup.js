@@ -31,9 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
           option.textContent = `${voice.name} (${voice.lang})`;
           
           if (voice.voiceURI.includes('Google')) {
-              option.textContent += " - Highlighting not supported";
+            //   option.textContent += " - Highlighting not supported";
               googleGroup.appendChild(option);
-          } else {
+            } else {
               systemGroup.appendChild(option);
           }
       });
