@@ -1,2 +1,7 @@
 index.html
 .vscode
+
+*.psd
+*.mp4
+
+final-store/
